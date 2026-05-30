@@ -57,17 +57,15 @@ def main(news_list, dataset_dir = 'dataset/', dataset_type = 'CNStock/', action_
                 freeze_ornot, series_type, text_type, alpha, temp, losspull)   
             result_dict = {'name':name,
                            'method':method,
-                            'B&H':sig_result['B&H'].values[0],
-                        '1x_short': sig_result['1x_short'].values[0],
-                        '1x_no_short': sig_result['1x_no_short'].values[0],
-                        '2x_short': sig_result['2x_short'].values[0],
-                        '2x_no_short': sig_result['2x_no_short'].values[0],
-                        'sharpe_1x_short': sig_result['sharpe_1x_short'].values[0],
-                        'sharpe_1x_no_short': sig_result['sharpe_1x_no_short'].values[0],
-                        'sharpe_2x_short': sig_result['sharpe_2x_short'].values[0],
-                        'sharpe_2x_no_short': sig_result['sharpe_2x_no_short'].values[0],
-                        'max_drawdown': sig_result['max_drawdown'].values[0],
-                        'accurancy': sig_result['acc'].values[0]}
+                           'B&H': sig_result['B&H'].values[0],
+                           'strategy_net': sig_result['Strategy_net'].values[0],
+                           'sharpe': sig_result['sharpe'].values[0],
+                           'sortino': sig_result['sortino'].values[0],
+                           'turnover': sig_result['turnover'].values[0],
+                           'max_drawdown': sig_result['max_drawdown'].values[0],
+                           'acc': sig_result['acc'].values[0],
+                           'ff3_alpha': sig_result.get('ff3_alpha', np.nan),
+                           'carhart_alpha': sig_result.get('carhart_alpha', np.nan)}
             
             result.append(result_dict)
             
@@ -89,7 +87,7 @@ if __name__ == '__main__':
     freeze_ornot_list = [True]
     alpha_list = [0.9]  # 0.3, 0.7
     temp_list = [0.1]  # 0.1, 0.3, 0.5, 0.7, 0.9
-    losspull_list = [0, 1, -1, '±1', 2, -2, '±2']  # 0
+    losspull_list = [0, 1, 2, 3]  # causal backward window Delta (paper: strictly past j < i)
     
     # for params in itertools.product(epoches_list, lookahead_list, freeze_ornot_list, alpha_list, temp_list, losspull_list):
     #     epoches, lookahead, freeze_ornot, alpha, temp, losspull = params

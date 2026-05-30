@@ -13,7 +13,7 @@ dataset_type = 'USStock/' # 'CNStock/', 'USStock/', 'SP500'
 # data_generator
 WINDOW_SIZE = 20
 LookBack = 20  # same as window_size
-LookAhead = 5  # same as horizon
+LookAhead = 1  # same as horizon; next-day directional label per paper
 DATE_FORMAT = "%Y-%m-%d"
 WEEKDAY = ['dayofweek']   # 注意这个是字符串，在和其他list相连的时候需要list + [WEEKDAY]，主要是用在对df[WEEKDAY]直接赋值
 Symbol = '000001'

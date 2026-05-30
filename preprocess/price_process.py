@@ -13,25 +13,22 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 # from utils import validate
 
-################ add reward ################33
-def attach_reward(df, look_ahead):
-    ''' attach rewards to corresponding sliding windows each.
+################ add next-day directional label ################
+def attach_label(df):
     '''
-    df['reward'] = df["close"].rolling(window=look_ahead+1, min_periods=look_ahead+1).apply(reward)
-    df['reward'] = df['reward'].shift(-look_ahead)  # 计算好以后往上移，与close并列
-
-reward1 = partial(attach_reward, look_ahead=1)
-reward2 = partial(attach_reward, look_ahead=2)
-reward5 = partial(attach_reward, look_ahead=5)
-reward10 = partial(attach_reward, look_ahead=10)
-reward20 = partial(attach_reward, look_ahead=20)
-reward50 = partial(attach_reward, look_ahead=50)
-    
-def reward(landscape:pd.Series) -> float:
-    ''' determine the rank a price in a prices set -- a rudimentary version
-    to be more delicate, try quantile
+    Directional label: y_t = 1 if x_{t+1}^Close > x_t^Close (bullish),
+                         y_t = 0 if x_{t+1}^Close < x_t^Close (bearish).
+    Tie cases carry forward the previous label.
     '''
-    return landscape.rank(pct=True,ascending=False).iloc[0]
+    df['next_close'] = df['close'].shift(-1)
+    df['label_raw'] = np.where(df['next_close'] > df['close'], 1,
+                               np.where(df['next_close'] < df['close'], 0, np.nan))
+    # carry-forward for tie cases (y_t = y_{t-1})
+    df['label_raw'] = df['label_raw'].fillna(method='ffill')
+    # if the very first row is still NaN, default to 0
+    df['label_raw'] = df['label_raw'].fillna(0)
+    df['label'] = df['label_raw'].astype(int)
+    df = df.drop(columns=['next_close', 'label_raw'])
 
 
 
@@ -79,16 +76,11 @@ def process_price(price_df, selected_feature=indicators+kdj, data_type='carbon',
     
     price_df = price_df.sort_values(by='date', ascending=True).set_index('date')
     price_df = add_indicators(price_df)
-    if lookahead == 1: reward1(price_df)
-    elif lookahead == 2: reward2(price_df)
-    elif lookahead == 5:reward5(price_df)
-    elif lookahead == 10: reward10(price_df)
-    elif lookahead ==20:reward20(price_df)
-    elif lookahead == 50: reward50(price_df)
+    attach_label(price_df)  # next-day directional label
     if method == 'dtml':
-        return price_df.dropna()[OCLHV+ selected_feature + weekcol+ ['reward']]
+        return price_df.dropna()[OCLHV+ selected_feature + weekcol+ ['label']]
     else:
-        return price_df.dropna()[OCLHV+ selected_feature+ ['reward']]
+        return price_df.dropna()[OCLHV+ selected_feature+ ['label']]
         
         
 def shift_datetime(date, shift_from='%Y%m%d', shift_to='%Y%m%d'):

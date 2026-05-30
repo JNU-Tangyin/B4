@@ -102,7 +102,7 @@ def concat_events_and_price(price, text,  selected_elements=['type'], \
    
     price = process_price(price, method=method, lookahead=lookahead)
     weekcol = ['weekday_'+str(i) for i in range(5)]
-    price['label'] = price['reward'].apply(lambda x: 1 if x<0.5 else 0)
+    # label is already attached inside process_price (next-day directional)
     if series_type == 'price':
         price = price[OCLH + ['label']]
     elif series_type == 'indicators':

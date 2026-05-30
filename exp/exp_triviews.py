@@ -126,11 +126,12 @@ def test_triviews(train_df, test_df, train_dataloader, test_dataloader, \
     if action_nextday: 
         action_sequence = action_sequence.shift(1).fillna(0).astype("int")
     
-    action_sequence =  [-1 if x == 0 else x for x in action_sequence]
-    targets_list = [-1 if x == 0 else x for x in targets_list]
+    # Long-flat protocol: bullish (1) -> long (1), bearish (0) -> flat (0)
+    action_sequence = [1 if x == 1 else 0 for x in action_sequence]
+    targets_list = [1 if x == 1 else 0 for x in targets_list]
     
     test_df = test_df.iloc[LookBack-1:,:]
-    test_df['action'] = action_sequence # predict action
+    test_df['action'] = action_sequence # predict action: 1=long, 0=flat
     test_df['labels'] = targets_list
                 
     return test_df

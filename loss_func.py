@@ -42,19 +42,17 @@ class SupConLoss(nn.Module):
             # delete diagonal elements
             mask = mask ^ torch.diag_embed(torch.diag(mask))
 
-            # 以下是IP
+            # Inertial Pairing (IP) -- strictly causal: only past time steps (j < i)
             n = mask.shape[0]
             if self.losspull == 0:
                 seq_mask = torch.eye(n).bool().to(device) # no additional positive samples
             else:
-                if type(self.losspull) is not str: 
-                    if self.losspull > 0:
-                        offsets = list(range(1, self.losspull + 1))
-                    elif self.losspull < 0:
-                        offsets = list(range(self.losspull, 0))
-                else:  # self.losspull is '±n'
-                    offsets = list(range(-abs(int(self.losspull[1])), abs(int(self.losspull[1])) + 1))
-                    offsets.remove(0)
+                # losspull > 0 defines backward window size Delta (e.g., 1,2,3)
+                # offsets are negative: -Delta, ..., -1  => j = i-Delta, ..., i-1
+                if isinstance(self.losspull, int) and self.losspull > 0:
+                    offsets = list(range(-self.losspull, 0))
+                else:
+                    raise ValueError(f"losspull must be a non-negative integer, got {self.losspull}")
 
                 diagonals = [1] * len(offsets)
                 seq_mask = diags(diagonals, offsets, shape=(n, n)).toarray()
@@ -100,8 +98,8 @@ class DualLoss(SupConLoss):
         # 从 normed_label_feats 中提取与 targets 对应的特征，得到正样本特征
         normed_pos_label_feats = torch.gather(normed_label_feats, dim=1, index=targets.reshape(-1, 1, 1).expand(-1, 1, normed_label_feats.size(-1))).squeeze(1)
         ce_loss = (1 - self.alpha) * self.xent_loss(outputs['predicts'], targets)
-        cl_loss_1 = 0.5 * self.alpha * self.nt_xent_loss(normed_pos_label_feats, normed_cls_feats, targets)
-        cl_loss_2 = 0.5 * self.alpha * self.nt_xent_loss(normed_cls_feats, normed_pos_label_feats, targets)
+        cl_loss_1 = self.alpha * self.nt_xent_loss(normed_pos_label_feats, normed_cls_feats, targets)
+        cl_loss_2 = self.alpha * self.nt_xent_loss(normed_cls_feats, normed_pos_label_feats, targets)
         return ce_loss + cl_loss_1 + cl_loss_2
 
 
