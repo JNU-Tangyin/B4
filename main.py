@@ -83,9 +83,9 @@ if __name__ == '__main__':
     from globals import *
     import itertools
     epoches_list = [200]
-    lookahead_list = [2]
+    lookahead_list = [1]  # next-day directional label (paper)
     freeze_ornot_list = [True]
-    alpha_list = [0.9]  # 0.3, 0.7
+    alpha_list = [0.5]  # selected on validation Calmar (grid: 0.1-0.9)
     temp_list = [0.1]  # 0.1, 0.3, 0.5, 0.7, 0.9
     losspull_list = [0, 1, 2, 3]  # causal backward window Delta (paper: strictly past j < i)
     
@@ -94,5 +94,5 @@ if __name__ == '__main__':
     #     main(us_list, dataset_type='USStock/', epoches=epoches, lookahead=lookahead, freeze_ornot=freeze_ornot, series_type='price', text_type='news', alpha=alpha, temp=temp, losspull=losspull)
         
     # main(cn_list, dataset_type='CNStock/', epoches=30, lookahead=2, freeze_ornot=True, series_type='price', text_type='news', alpha=0.5, temp=0.1, losspull='±1')    
-    main(us_list, dataset_type='USStock/', epoches=200, lookahead=2, freeze_ornot=True, series_type='price', text_type='news', alpha=0.5, temp=0.1, losspull=0)  
+    main(us_list, dataset_type='USStock/', epoches=200, lookahead=1, freeze_ornot=True, series_type='price', text_type='news', alpha=0.5, temp=0.1, losspull=0)  
     # main(sp_list, dataset_type='SP500/', epoches=30, lookahead=1, freeze_ornot=True, series_type='price', text_type='news', alpha=0.5, temp=0.1, losspull=0)     
