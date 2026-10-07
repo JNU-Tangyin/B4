@@ -94,5 +94,5 @@ if __name__ == '__main__':
     #     main(us_list, dataset_type='USStock/', epoches=epoches, lookahead=lookahead, freeze_ornot=freeze_ornot, series_type='price', text_type='news', alpha=alpha, temp=temp, losspull=losspull)
         
     # main(cn_list, dataset_type='CNStock/', epoches=30, lookahead=2, freeze_ornot=True, series_type='price', text_type='news', alpha=0.5, temp=0.1, losspull='±1')    
-    main(us_list, dataset_type='USStock/', epoches=1, lookahead=2, freeze_ornot=True, series_type='price', text_type='news', alpha=0.5, temp=0.1, losspull=0)  
+    main(us_list, dataset_type='USStock/', epoches=200, lookahead=2, freeze_ornot=True, series_type='price', text_type='news', alpha=0.5, temp=0.1, losspull=0)  
     # main(sp_list, dataset_type='SP500/', epoches=30, lookahead=1, freeze_ornot=True, series_type='price', text_type='news', alpha=0.5, temp=0.1, losspull=0)     
